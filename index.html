@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ニューストピック ランキング</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede9;
+    --text: #1a1a1a; --text2: #555550; --text3: #999993;
+    --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
+    --blue-bg: #E6F1FB; --blue-text: #0C447C; --blue-mid: #378ADD; --blue-strong: #185FA5;
+    --green-bg: #E1F5EE; --green-text: #085041; --green-mid: #1D9E75;
+    --amber-bg: #FAEEDA; --amber-text: #633806;
+    --purple-bg: #EEEDFE; --purple-text: #3C3489;
+    --teal-bg: #EAF3DE; --teal-text: #27500A;
+    --r: 8px; --rl: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a; --bg2: #252522; --bg3: #2e2e2b;
+      --text: #f0efeb; --text2: #a8a8a0; --text3: #666660;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.18);
+      --blue-bg: #0c2a44; --blue-text: #85B7EB;
+      --green-bg: #062a1e; --green-text: #5DCAA5;
+      --amber-bg: #2e1c04; --amber-text: #FAC775;
+      --purple-bg: #1a1640; --purple-text: #AFA9EC;
+      --teal-bg: #152808; --teal-text: #97C459;
+    }
+  }
+  body { font-family: var(--font); background: var(--bg3); color: var(--text); min-height: 100vh; }
+  .page { max-width: 720px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+  header { margin-bottom: 2rem; }
+  header h1 { font-size: 22px; font-weight: 600; color: var(--text); }
+  header p { font-size: 13px; color: var(--text2); margin-top: 4px; }
+  header small { font-size: 11px; color: var(--text3); }
+
+  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .toolbar-label { font-size: 12px; color: var(--text3); }
+  .sort-btn {
+    font-size: 12px; padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--border2); background: var(--bg);
+    color: var(--text2); cursor: pointer; font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .sort-btn.on { background: var(--blue-bg); color: var(--blue-text); border-color: var(--blue-mid); }
+  .sort-btn:hover:not(.on) { background: var(--bg2); }
+
+  .topic-list { display: flex; flex-direction: column; gap: 8px; }
+  .topic-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--rl); cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .topic-row:hover { border-color: var(--border2); }
+  .topic-row.sel { border-color: var(--blue-mid); border-width: 1.5px; }
+
+  .rank-num {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+  }
+  .rn1 { background: var(--blue-bg); color: var(--blue-text); }
+  .rn2 { background: var(--green-bg); color: var(--green-text); }
+  .rn3 { background: var(--amber-bg); color: var(--amber-text); }
+  .rno { background: var(--bg2); color: var(--text2); }
+
+  .topic-main { flex: 1; min-width: 0; }
+  .topic-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4; }
+  .topic-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  .mini-bars { display: flex; flex-direction: column; gap: 4px; width: 72px; flex-shrink: 0; }
+  .mini-bar-row { display: flex; gap: 4px; align-items: center; }
+  .mini-label { font-size: 9px; color: var(--text3); width: 22px; }
+  .mini-track { flex: 1; height: 3px; background: var(--bg2); border-radius: 2px; overflow: hidden; }
+  .mini-fill-i { height: 3px; background: var(--blue-mid); border-radius: 2px; }
+  .mini-fill-n { height: 3px; background: var(--green-mid); border-radius: 2px; }
+
+  .score-col { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
+  .score-big { font-size: 20px; font-weight: 600; color: var(--text); line-height: 1; }
+  .score-tiny { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+  .cat-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
+  .tw { background: var(--purple-bg); color: var(--purple-text); }
+  .te { background: var(--teal-bg); color: var(--teal-text); }
+  .tp { background: var(--blue-bg); color: var(--blue-text); }
+  .tt { background: var(--amber-bg); color: var(--amber-text); }
+
+  .chevron { font-size: 16px; color: var(--text3); flex-shrink: 0; transition: transform 0.2s; }
+  .topic-row.sel .chevron { transform: rotate(90deg); }
+
+  .detail-box {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--rl); padding: 1.5rem;
+    margin-top: 0.5rem; margin-bottom: 0.5rem;
+  }
+  .d-tag-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .d-source { font-size: 11px; color: var(--text3); }
+  .d-title { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.45; margin-bottom: 14px; }
+
+  .d-scores { display: flex; margin-bottom: 16px; border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+  .ds-cell { flex: 1; padding: 12px; text-align: center; background: var(--bg2); border-right: 1px solid var(--border); }
+  .ds-cell:last-child { border-right: none; }
+  .ds-val { font-size: 22px; font-weight: 700; }
+  .ds-lbl { font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .ds-why { font-size: 10px; color: var(--text3); margin-top: 5px; line-height: 1.4; }
+
+  .d-summary { font-size: 13px; color: var(--text2); line-height: 1.8; margin-bottom: 16px; }
+
+  .section-lbl {
+    font-size: 10px; font-weight: 600; color: var(--text3);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    margin-bottom: 8px; margin-top: 16px;
+  }
+  .points-list { display: flex; flex-direction: column; gap: 7px; }
+  .point-item { display: flex; gap: 8px; font-size: 13px; color: var(--text2); line-height: 1.55; }
+  .point-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue-mid); flex-shrink: 0; margin-top: 7px; }
+
+  .links-grid { display: flex; flex-direction: column; gap: 8px; }
+  .link-card {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: var(--r); text-decoration: none;
+    background: var(--bg); transition: border-color 0.15s;
+  }
+  .link-card:hover { border-color: var(--border2); }
+  .link-icon {
+    width: 30px; height: 30px; border-radius: 6px; flex-shrink: 0;
+    background: var(--bg2); display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--text2);
+  }
+  .link-body { flex: 1; min-width: 0; }
+  .link-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .link-desc { font-size: 11px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
+  .link-url { font-size: 10px; color: var(--blue-strong); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .related-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .rel-chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 14px;
+    border: 1px solid var(--border2); background: var(--bg);
+    color: var(--text2); cursor: default; font-family: var(--font);
+  }
+
+  .update-note {
+    margin-top: 3rem; padding: 1rem 1.25rem;
+    background: var(--bg2); border-radius: var(--r);
+    font-size: 12px; color: var(--text3); line-height: 1.7;
+  }
+  .update-note strong { color: var(--text2); }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>ニューストピック ランキング</h1>
+    <p>重要度・関心度でスコアリングした国際・政治・経済ニュース</p>
+    <small>最終更新：2026年4月21日</small>
+  </header>
+
+  <div class="toolbar">
+    <span class="toolbar-label">並び替え</span>
+    <button class="sort-btn on" onclick="setSort(this,'total')">総合スコア</button>
+    <button class="sort-btn" onclick="setSort(this,'importance')">重要度</button>
+    <button class="sort-btn" onclick="setSort(this,'interest')">関心度</button>
+  </div>
+
+  <div class="topic-list" id="topicList"></div>
+
+  <div class="update-note">
+    <strong>このページについて</strong><br>
+    ニュースデータはClaudeがウェブ検索して手動で更新しています。新しいトピックへの更新はClaude.aiで「最新ニュースを調べてHTMLを更新して」とリクエストしてください。
+  </div>
+</div>
+
+<script>
+const catMeta = {
+  world:    { label: '国際',        cls: 'tw' },
+  economy:  { label: '経済',        cls: 'te' },
+  politics: { label: '政治',        cls: 'tp' },
+  tech:     { label: 'テクノロジー', cls: 'tt' }
+};
+
+const NEWS = [
+  {
+    id: 0,
+    title: "ホルムズ海峡「逆封鎖」：米・イラン二重管理で原油リスク急騰",
+    category: "world",
+    source: "時事ドットコム・global-scm.com",
+    importance: 96, interest: 91,
+    summary: "4月12日、トランプ大統領が米海軍によるホルムズ海峡「逆封鎖」を宣言。イランの通行料徴収を米軍が実力阻止する方針を示し、世界の原油輸送量の約20%が通過する要衝が前例のない二重管理状態に突入した。4月8日に一時停戦が伝えられたものの原油高の長期化は避けられない見通しで、日本を含むアジアのエネルギー輸入国に深刻な影響が広がっている。",
+    points: [
+      "米海軍がIRGC通行料支払船舶を阻止する「逆封鎖」を宣言（4月12日）",
+      "通行料の支払い自体がOFAC制裁違反となるリスクが発生",
+      "在台日系企業の67%が運賃高騰、65%が仕入コスト増を懸念",
+      "中東と直接取引のない製造業・小売業にも電力・物流コストで波及"
+    ],
+    importance_reason: "世界原油輸送の20%が通過する海峡の封鎖は各国のエネルギー安保に直撃",
+    interest_reason: "ガソリン・電気代・円相場を通じて国民生活への影響が広範かつ即時的",
+    links: [
+      { name: "ホルムズ海峡危機：情勢と実務リスク", media: "global-scm.com", desc: "逆封鎖の詳細・OFAC制裁リスク・企業への実務影響を網羅的に解説", url: "https://global-scm.com/blog/?p=6085" },
+      { name: "時事ドットコム 国際ニュース", media: "jiji.com", desc: "イラン攻撃・ホルムズ情勢の速報ニュース一覧", url: "https://www.jiji.com/jc/archives?g=int_archive_0" },
+      { name: "IMF 世界経済見通し（2026年4月）", media: "imf.org", desc: "中東紛争が世界成長率に与える影響をIMFが分析", url: "https://www.imf.org/ja/publications/weo/issues/2026/04/14/world-economic-outlook-april-2026" }
+    ],
+    related: ["中東・原油価格の最新動向", "ホルムズ封鎖の日本経済への影響", "イラン情勢の今後のシナリオ"]
+  },
+  {
+    id: 1,
+    title: "日銀4月会合（27・28日）：利上げ判断が今年最大の焦点",
+    category: "economy",
+    source: "日本経済新聞・野村証券・三井住友DS",
+    importance: 90, interest: 85,
+    summary: "4月27〜28日の日銀金融政策決定会合で追加利上げの是非が問われる。3月に2会合連続で据え置いた植田総裁は利上げ路線を維持しつつ中東情勢への警戒を示した。連合の賃上げデータが良好な一方、ホルムズ海峡危機による原油高・円安が新たな懸念材料として浮上し、市場では利上げ観測と慎重論が拮抗している。",
+    points: [
+      "3月会合で2会合連続の政策金利据え置きを決定",
+      "連合賃上げ率は2026年度も前年並みを維持（支店長会議4月6日確認）",
+      "中東原油高・円安が輸入物価を押し上げ、インフレ加速リスク",
+      "4月28日15:30に植田総裁の定例記者会見を予定"
+    ],
+    importance_reason: "日本の金融政策は円相場・住宅ローン・企業資金コストに直接連動",
+    interest_reason: "利上げ実施で住宅ローン・預金金利に即影響し個人の関心が極めて高い",
+    links: [
+      { name: "日銀・植田総裁の発言詳報", media: "nikkei.com", desc: "4月利上げの是非に関する植田総裁の発言を日経が分析", url: "https://www.nikkei.com/article/DGXZQOUB1709H0X10C26A4000000/" },
+      { name: "4月会合の利上げサインを読む", media: "nomura.co.jp", desc: "野村証券エグゼクティブストラテジストによる日銀会合詳細分析", url: "https://www.nomura.co.jp/wealthstyle/article/0682/" },
+      { name: "日銀 公表予定スケジュール", media: "boj.or.jp", desc: "金融政策決定会合・総裁会見の公式スケジュール", url: "https://www.boj.or.jp/about/calendar/index.htm" }
+    ],
+    related: ["日銀利上げと住宅ローンの影響", "植田総裁の最新発言まとめ", "円相場と利上げの関係"]
+  },
+  {
+    id: 2,
+    title: "IMF：中東紛争で世界成長率3.1%に下方修正",
+    category: "economy",
+    source: "IMF 世界経済見通し 2026年4月",
+    importance: 88, interest: 74,
+    summary: "IMFは4月の「世界経済見通し」で2026年の世界成長率を3.1%、2027年を3.2%と予測。中東での戦争勃発により一次産品価格上昇・インフレ・金融タイト化が同時進行し、パンデミック前平均を大きく下回る低成長が続く見通し。リスクは下振れ方向に傾いており、新興国・発展途上国への圧力集中が懸念される。",
+    points: [
+      "世界成長率：2026年3.1%・2027年3.2%（パンデミック前平均を大幅下回る）",
+      "一次産品価格上昇・インフレ期待・金融タイト化が三重に重なる",
+      "新興国・発展途上国への圧力が集中、高公的債務が脆弱性を深刻化",
+      "紛争長期化・地政学分断・AI生産性への失望が追加リスク"
+    ],
+    importance_reason: "主要国の財政・金融政策と日本の貿易環境に直結する権威ある見通し",
+    interest_reason: "景気後退リスクと投資環境への波及が明確で投資家・企業の注目が高い",
+    links: [
+      { name: "IMF 世界経済見通し（2026年4月）全文", media: "imf.org", desc: "中東紛争の影響分析・成長予測・政策提言を掲載した公式レポート", url: "https://www.imf.org/ja/publications/weo/issues/2026/04/14/world-economic-outlook-april-2026" }
+    ],
+    related: ["IMF予測と日本経済への影響", "2026年の世界景気後退リスク", "新興国へのリスク波及"]
+  },
+  {
+    id: 3,
+    title: "米の全世界関税15%：日米交渉が本格化",
+    category: "world",
+    source: "時事ドットコム・丸紅経済研究所",
+    importance: 85, interest: 88,
+    summary: "米国が全世界への15%一律関税を段階的に展開する中、日米間では4月24日に財務相会談を実施。為替水準は市場で決定するとの認識で一致したが、4月30日の第2回関税交渉で具体的な回避策が協議される予定。日本の輸出産業・製造業のサプライチェーン再編圧力が高まっている。",
+    points: [
+      "全世界15%関税が「5カ月で以前の水準に」と米財務長官が言及",
+      "日米財務相会談（4月24日）で為替の市場決定を確認",
+      "第2回日米関税交渉（4月30日）で具体的回避策を協議予定",
+      "自動車・電機など主要輸出産業のサプライチェーン再編が加速"
+    ],
+    importance_reason: "日本の輸出主力産業（自動車・電機）に直接影響する通商政策",
+    interest_reason: "物価・雇用・株価への波及が直接的で話題性・検索関心が非常に高い",
+    links: [
+      { name: "時事ドットコム 国際ニュース", media: "jiji.com", desc: "米関税政策・日米交渉の速報記事一覧", url: "https://www.jiji.com/jc/archives?g=int_archive_0" },
+      { name: "丸紅 週次経済ブリーフィング", media: "marubeni.com", desc: "日米交渉・米中貿易変調など経済動向のプロ向け分析", url: "https://www.marubeni.com/jp/research/report/data/WeeklyBriefing20250430.pdf" }
+    ],
+    related: ["日米関税交渉の最新状況", "関税15%が日本の物価に与える影響", "トランプ関税政策の全体像"]
+  },
+  {
+    id: 4,
+    title: "国会答弁にAI活用：松本デジタル相が方針表明",
+    category: "politics",
+    source: "時事ドットコム 2026年4月3日",
+    importance: 68, interest: 80,
+    summary: "松本デジタル相が国会答弁の作成プロセスにAIを活用する方針を4月に表明。霞が関の長時間労働是正を狙う一方、答弁内容の正確性やAIの政治的判断への関与に野党から懸念の声が上がっており、活用範囲の線引きが課題となっている。",
+    points: [
+      "国会答弁作成へのAI活用を松本デジタル相が正式表明",
+      "霞が関の深夜残業削減・行政効率化が主な目的",
+      "答弁の正確性・政治判断へのAI関与に野党から懸念",
+      "G7各国の議会AI活用との整合性も議論の対象に"
+    ],
+    importance_reason: "AI行政活用の先例として国内外の政策立案に影響する可能性",
+    interest_reason: "AIへの社会的関心の高さと行政効率化への賛否で広く話題になっている",
+    links: [
+      { name: "時事ドットコム 政治ニュース（4月）", media: "jiji.com", desc: "松本デジタル相の発言・国会AI活用に関する速報", url: "https://www.jiji.com/jc/archives?g=pol_archive_0" }
+    ],
+    related: ["行政AI活用の海外事例", "国会答弁AIの問題点と利点", "日本のデジタル行政の現状"]
+  }
+];
+
+let sortMode = 'total';
+let selectedId = null;
+
+function setSort(btn, mode) {
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  sortMode = mode;
+  selectedId = null;
+  render();
+}
+
+function getSorted() {
+  return [...NEWS].sort((a, b) => {
+    if (sortMode === 'importance') return b.importance - a.importance;
+    if (sortMode === 'interest')   return b.interest   - a.interest;
+    return (b.importance + b.interest) - (a.importance + a.interest);
+  });
+}
+
+function score(a) {
+  if (sortMode === 'importance') return a.importance;
+  if (sortMode === 'interest')   return a.interest;
+  return Math.round((a.importance + a.interest) / 2);
+}
+
+function scoreLbl() {
+  if (sortMode === 'importance') return '重要度';
+  if (sortMode === 'interest')   return '関心度';
+  return '総合';
+}
+
+function toggle(id) {
+  selectedId = selectedId === id ? null : id;
+  render();
+}
+
+function render() {
+  const sorted = getSorted();
+  const list = document.getElementById('topicList');
+  let html = '';
+
+  sorted.forEach((a, i) => {
+    const cat = catMeta[a.category];
+    const rncls = i===0?'rn1':i===1?'rn2':i===2?'rn3':'rno';
+    const sel = selectedId === a.id ? 'sel' : '';
+    html += `<div class="topic-row ${sel}" onclick="toggle(${a.id})">
+      <div class="rank-num ${rncls}">${i+1}</div>
+      <div class="topic-main">
+        <div class="topic-title">${a.title}</div>
+        <div class="topic-sub">${a.source}</div>
+      </div>
+      <div class="mini-bars">
+        <div class="mini-bar-row"><span class="mini-label">重要</span><div class="mini-track"><div class="mini-fill-i" style="width:${a.importance}%"></div></div></div>
+        <div class="mini-bar-row"><span class="mini-label">関心</span><div class="mini-track"><div class="mini-fill-n" style="width:${a.interest}%"></div></div></div>
+      </div>
+      <div class="score-col">
+        <div class="score-big">${score(a)}</div>
+        <div class="score-tiny">${scoreLbl()}</div>
+      </div>
+      <span class="cat-tag ${cat.cls}">${cat.label}</span>
+      <span class="chevron">›</span>
+    </div>`;
+
+    if (selectedId === a.id) {
+      const total = Math.round((a.importance + a.interest) / 2);
+      html += `<div class="detail-box">
+        <div class="d-tag-row">
+          <span class="cat-tag ${cat.cls}">${cat.label}</span>
+          <span class="d-source">${a.source}</span>
+        </div>
+        <div class="d-title">${a.title}</div>
+        <div class="d-scores">
+          <div class="ds-cell">
+            <div class="ds-val" style="color:#185FA5">${a.importance}</div>
+            <div class="ds-lbl">重要度</div>
+            <div class="ds-why">${a.importance_reason}</div>
+          </div>
+          <div class="ds-cell">
+            <div class="ds-val" style="color:#0F6E56">${a.interest}</div>
+            <div class="ds-lbl">関心度</div>
+            <div class="ds-why">${a.interest_reason}</div>
+          </div>
+          <div class="ds-cell">
+            <div class="ds-val">${total}</div>
+            <div class="ds-lbl">総合スコア</div>
+          </div>
+        </div>
+        <div class="d-summary">${a.summary}</div>
+        <div class="section-lbl">主なポイント</div>
+        <div class="points-list">${a.points.map(p=>`<div class="point-item"><div class="point-dot"></div><span>${p}</span></div>`).join('')}</div>
+        <div class="section-lbl">関連記事・参考リンク</div>
+        <div class="links-grid">${a.links.map(l=>`
+          <a class="link-card" href="${l.url}" target="_blank" rel="noopener">
+            <div class="link-icon">${l.media.substring(0,2).toUpperCase()}</div>
+            <div class="link-body">
+              <div class="link-name">${l.name}</div>
+              <div class="link-desc">${l.desc}</div>
+              <div class="link-url">${l.url}</div>
+            </div>
+          </a>`).join('')}
+        </div>
+        <div class="section-lbl">関連キーワード</div>
+        <div class="related-chips">${a.related.map(r=>`<span class="rel-chip">${r}</span>`).join('')}</div>
+      </div>`;
+    }
+  });
+
+  list.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
