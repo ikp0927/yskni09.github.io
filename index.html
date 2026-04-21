@@ -3,406 +3,419 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ニューストピック ランキング</title>
+<title>週刊ニューストピック ランキング</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede9;
-    --text: #1a1a1a; --text2: #555550; --text3: #999993;
-    --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
-    --blue-bg: #E6F1FB; --blue-text: #0C447C; --blue-mid: #378ADD; --blue-strong: #185FA5;
-    --green-bg: #E1F5EE; --green-text: #085041; --green-mid: #1D9E75;
-    --amber-bg: #FAEEDA; --amber-text: #633806;
-    --purple-bg: #EEEDFE; --purple-text: #3C3489;
-    --teal-bg: #EAF3DE; --teal-text: #27500A;
-    --r: 8px; --rl: 12px;
-    --font: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1c1c1a; --bg2: #252522; --bg3: #2e2e2b;
-      --text: #f0efeb; --text2: #a8a8a0; --text3: #666660;
-      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.18);
-      --blue-bg: #0c2a44; --blue-text: #85B7EB;
-      --green-bg: #062a1e; --green-text: #5DCAA5;
-      --amber-bg: #2e1c04; --amber-text: #FAC775;
-      --purple-bg: #1a1640; --purple-text: #AFA9EC;
-      --teal-bg: #152808; --teal-text: #97C459;
-    }
-  }
-  body { font-family: var(--font); background: var(--bg3); color: var(--text); min-height: 100vh; }
-  .page { max-width: 720px; margin: 0 auto; padding: 2rem 1rem 4rem; }
-
-  header { margin-bottom: 2rem; }
-  header h1 { font-size: 22px; font-weight: 600; color: var(--text); }
-  header p { font-size: 13px; color: var(--text2); margin-top: 4px; }
-  header small { font-size: 11px; color: var(--text3); }
-
-  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
-  .toolbar-label { font-size: 12px; color: var(--text3); }
-  .sort-btn {
-    font-size: 12px; padding: 5px 14px; border-radius: 20px;
-    border: 1px solid var(--border2); background: var(--bg);
-    color: var(--text2); cursor: pointer; font-family: var(--font);
-    transition: all 0.15s;
-  }
-  .sort-btn.on { background: var(--blue-bg); color: var(--blue-text); border-color: var(--blue-mid); }
-  .sort-btn:hover:not(.on) { background: var(--bg2); }
-
-  .topic-list { display: flex; flex-direction: column; gap: 8px; }
-  .topic-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 14px;
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: var(--rl); cursor: pointer;
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-  .topic-row:hover { border-color: var(--border2); }
-  .topic-row.sel { border-color: var(--blue-mid); border-width: 1.5px; }
-
-  .rank-num {
-    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 600;
-  }
-  .rn1 { background: var(--blue-bg); color: var(--blue-text); }
-  .rn2 { background: var(--green-bg); color: var(--green-text); }
-  .rn3 { background: var(--amber-bg); color: var(--amber-text); }
-  .rno { background: var(--bg2); color: var(--text2); }
-
-  .topic-main { flex: 1; min-width: 0; }
-  .topic-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4; }
-  .topic-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
-
-  .mini-bars { display: flex; flex-direction: column; gap: 4px; width: 72px; flex-shrink: 0; }
-  .mini-bar-row { display: flex; gap: 4px; align-items: center; }
-  .mini-label { font-size: 9px; color: var(--text3); width: 22px; }
-  .mini-track { flex: 1; height: 3px; background: var(--bg2); border-radius: 2px; overflow: hidden; }
-  .mini-fill-i { height: 3px; background: var(--blue-mid); border-radius: 2px; }
-  .mini-fill-n { height: 3px; background: var(--green-mid); border-radius: 2px; }
-
-  .score-col { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
-  .score-big { font-size: 20px; font-weight: 600; color: var(--text); line-height: 1; }
-  .score-tiny { font-size: 10px; color: var(--text3); margin-top: 2px; }
-
-  .cat-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
-  .tw { background: var(--purple-bg); color: var(--purple-text); }
-  .te { background: var(--teal-bg); color: var(--teal-text); }
-  .tp { background: var(--blue-bg); color: var(--blue-text); }
-  .tt { background: var(--amber-bg); color: var(--amber-text); }
-
-  .chevron { font-size: 16px; color: var(--text3); flex-shrink: 0; transition: transform 0.2s; }
-  .topic-row.sel .chevron { transform: rotate(90deg); }
-
-  .detail-box {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: var(--rl); padding: 1.5rem;
-    margin-top: 0.5rem; margin-bottom: 0.5rem;
-  }
-  .d-tag-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
-  .d-source { font-size: 11px; color: var(--text3); }
-  .d-title { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.45; margin-bottom: 14px; }
-
-  .d-scores { display: flex; margin-bottom: 16px; border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
-  .ds-cell { flex: 1; padding: 12px; text-align: center; background: var(--bg2); border-right: 1px solid var(--border); }
-  .ds-cell:last-child { border-right: none; }
-  .ds-val { font-size: 22px; font-weight: 700; }
-  .ds-lbl { font-size: 10px; color: var(--text3); margin-top: 2px; }
-  .ds-why { font-size: 10px; color: var(--text3); margin-top: 5px; line-height: 1.4; }
-
-  .d-summary { font-size: 13px; color: var(--text2); line-height: 1.8; margin-bottom: 16px; }
-
-  .section-lbl {
-    font-size: 10px; font-weight: 600; color: var(--text3);
-    letter-spacing: 0.06em; text-transform: uppercase;
-    margin-bottom: 8px; margin-top: 16px;
-  }
-  .points-list { display: flex; flex-direction: column; gap: 7px; }
-  .point-item { display: flex; gap: 8px; font-size: 13px; color: var(--text2); line-height: 1.55; }
-  .point-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue-mid); flex-shrink: 0; margin-top: 7px; }
-
-  .links-grid { display: flex; flex-direction: column; gap: 8px; }
-  .link-card {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 10px 12px; border: 1px solid var(--border);
-    border-radius: var(--r); text-decoration: none;
-    background: var(--bg); transition: border-color 0.15s;
-  }
-  .link-card:hover { border-color: var(--border2); }
-  .link-icon {
-    width: 30px; height: 30px; border-radius: 6px; flex-shrink: 0;
-    background: var(--bg2); display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700; color: var(--text2);
-  }
-  .link-body { flex: 1; min-width: 0; }
-  .link-name { font-size: 13px; font-weight: 600; color: var(--text); }
-  .link-desc { font-size: 11px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
-  .link-url { font-size: 10px; color: var(--blue-strong); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .related-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-  .rel-chip {
-    font-size: 12px; padding: 5px 12px; border-radius: 14px;
-    border: 1px solid var(--border2); background: var(--bg);
-    color: var(--text2); cursor: default; font-family: var(--font);
-  }
-
-  .update-note {
-    margin-top: 3rem; padding: 1rem 1.25rem;
-    background: var(--bg2); border-radius: var(--r);
-    font-size: 12px; color: var(--text3); line-height: 1.7;
-  }
-  .update-note strong { color: var(--text2); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#fff; --bg2:#f5f5f3; --bg3:#eeede9;
+  --text:#1a1a1a; --text2:#555550; --text3:#999993;
+  --bd:rgba(0,0,0,0.1); --bd2:rgba(0,0,0,0.18);
+  --blue-bg:#E6F1FB; --blue-t:#0C447C; --blue-m:#378ADD; --blue-s:#185FA5;
+  --green-bg:#E1F5EE; --green-t:#085041; --green-m:#1D9E75;
+  --amber-bg:#FAEEDA; --amber-t:#633806;
+  --purple-bg:#EEEDFE; --purple-t:#3C3489;
+  --teal-bg:#EAF3DE; --teal-t:#27500A;
+  --red-bg:#FCEBEB; --red-t:#791F1F;
+  --pink-bg:#FBEAF0; --pink-t:#72243E;
+  --r:8px; --rl:12px;
+  --font:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a; --bg2:#252522; --bg3:#2e2e2b;
+  --text:#f0efeb; --text2:#a8a8a0; --text3:#666660;
+  --bd:rgba(255,255,255,0.1); --bd2:rgba(255,255,255,0.18);
+  --blue-bg:#0c2a44; --blue-t:#85B7EB;
+  --green-bg:#062a1e; --green-t:#5DCAA5;
+  --amber-bg:#2e1c04; --amber-t:#FAC775;
+  --purple-bg:#1a1640; --purple-t:#AFA9EC;
+  --teal-bg:#152808; --teal-t:#97C459;
+  --red-bg:#2e0a0a; --red-t:#F09595;
+  --pink-bg:#2e0a1a; --pink-t:#ED93B1;
+}}
+body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:100vh;}
+.page{max-width:720px;margin:0 auto;padding:2rem 1rem 4rem;}
+header{margin-bottom:1.5rem;}
+header h1{font-size:22px;font-weight:600;}
+header p{font-size:13px;color:var(--text2);margin-top:4px;}
+header small{font-size:11px;color:var(--text3);}
+.summary-box{margin-top:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:var(--r);font-size:12px;color:var(--text2);line-height:1.6;}
+.summary-box strong{color:var(--text);font-weight:600;}
+.toolbar{display:flex;gap:8px;align-items:center;margin:1.25rem 0 .75rem;flex-wrap:wrap;}
+.tl{font-size:12px;color:var(--text3);}
+.sb{font-size:12px;padding:5px 14px;border-radius:20px;border:1px solid var(--bd2);background:var(--bg);color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .15s;}
+.sb.on{background:var(--blue-bg);color:var(--blue-t);border-color:var(--blue-m);}
+.sb:hover:not(.on){background:var(--bg2);}
+.cat-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem;}
+.cb{font-size:11px;padding:4px 11px;border-radius:14px;border:1px solid var(--bd2);background:var(--bg);color:var(--text2);cursor:pointer;font-family:var(--font);}
+.cb.on{background:var(--blue-bg);color:var(--blue-t);border-color:var(--blue-m);}
+.count{font-size:11px;color:var(--text3);margin-bottom:8px;}
+.topic-list{display:flex;flex-direction:column;gap:8px;}
+.tr{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);cursor:pointer;transition:border-color .15s;}
+.tr:hover{border-color:var(--bd2);}
+.tr.sel{border-color:var(--blue-m);border-width:1.5px;}
+.rn{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;}
+.r1{background:var(--blue-bg);color:var(--blue-t);}
+.r2{background:var(--green-bg);color:var(--green-t);}
+.r3{background:var(--amber-bg);color:var(--amber-t);}
+.ro{background:var(--bg2);color:var(--text2);}
+.tm{flex:1;min-width:0;}
+.tt{font-size:13px;font-weight:600;color:var(--text);line-height:1.4;}
+.ts{font-size:11px;color:var(--text3);margin-top:2px;display:flex;gap:6px;align-items:center;}
+.date{font-size:10px;color:var(--text3);background:var(--bg2);padding:1px 6px;border-radius:4px;}
+.mb{display:flex;flex-direction:column;gap:4px;width:72px;flex-shrink:0;}
+.mr{display:flex;gap:4px;align-items:center;}
+.ml{font-size:9px;color:var(--text3);width:22px;}
+.mt{flex:1;height:3px;background:var(--bg2);border-radius:2px;overflow:hidden;}
+.mi{height:3px;background:var(--blue-m);border-radius:2px;}
+.mn{height:3px;background:var(--green-m);border-radius:2px;}
+.sc{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;}
+.sv{font-size:20px;font-weight:600;line-height:1;}
+.sl{font-size:10px;color:var(--text3);margin-top:2px;}
+.ct{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;flex-shrink:0;}
+.cw{background:var(--purple-bg);color:var(--purple-t);}
+.ce{background:var(--teal-bg);color:var(--teal-t);}
+.cp{background:var(--blue-bg);color:var(--blue-t);}
+.ck{background:var(--amber-bg);color:var(--amber-t);}
+.cr{background:var(--pink-bg);color:var(--pink-t);}
+.nb{font-size:10px;padding:1px 6px;border-radius:8px;background:var(--red-bg);color:var(--red-t);font-weight:600;flex-shrink:0;}
+.ch{font-size:16px;color:var(--text3);flex-shrink:0;transition:transform .2s;}
+.tr.sel .ch{transform:rotate(90deg);}
+.db{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:1.5rem;margin:.5rem 0;}
+.dtr{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+.dso{font-size:11px;color:var(--text3);}
+.dti{font-size:16px;font-weight:600;line-height:1.45;margin-bottom:14px;}
+.dsc{display:flex;margin-bottom:16px;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;}
+.dc{flex:1;padding:12px;text-align:center;background:var(--bg2);border-right:1px solid var(--bd);}
+.dc:last-child{border-right:none;}
+.dv{font-size:22px;font-weight:700;}
+.dl{font-size:10px;color:var(--text3);margin-top:2px;}
+.dw{font-size:10px;color:var(--text3);margin-top:5px;line-height:1.4;}
+.dsu{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px;}
+.sl2{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;margin-top:16px;}
+.pl{display:flex;flex-direction:column;gap:7px;}
+.pi{display:flex;gap:8px;font-size:13px;color:var(--text2);line-height:1.55;}
+.pd{width:5px;height:5px;border-radius:50%;background:var(--blue-m);flex-shrink:0;margin-top:7px;}
+.lg{display:flex;flex-direction:column;gap:8px;}
+.lc{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--bd);border-radius:var(--r);text-decoration:none;background:var(--bg);transition:border-color .15s;}
+.lc:hover{border-color:var(--bd2);}
+.li{width:30px;height:30px;border-radius:6px;flex-shrink:0;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2);}
+.lb{flex:1;min-width:0;}
+.ln{font-size:13px;font-weight:600;color:var(--text);}
+.ld{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4;}
+.lu{font-size:10px;color:var(--blue-s);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rc{display:flex;gap:6px;flex-wrap:wrap;}
+.rch{font-size:12px;padding:5px 12px;border-radius:14px;border:1px solid var(--bd2);background:var(--bg);color:var(--text2);font-family:var(--font);}
+.un{margin-top:3rem;padding:1rem 1.25rem;background:var(--bg2);border-radius:var(--r);font-size:12px;color:var(--text3);line-height:1.7;}
+.un strong{color:var(--text2);}
 </style>
 </head>
 <body>
 <div class="page">
   <header>
-    <h1>ニューストピック ランキング</h1>
-    <p>重要度・関心度でスコアリングした国際・政治・経済ニュース</p>
-    <small>最終更新：2026年4月21日</small>
+    <h1>週刊国際ニュース ランキング</h1>
+    <p>時事ドットコム国際欄ベース ／ 4月14日〜21日の1週間分</p>
+    <small>最終更新：2026年4月21日（火）　15件</small>
+    <div class="summary-box">
+      <strong>今週のハイライト</strong>　ホルムズ海峡を巡る米イラン緊張が最大のテーマ。停戦期限が22日夜に迫る中でバンス副大統領がイスラマバード入り、原油は再び90ドル超に。欧州ではハンガリー・オルバン政権が16年ぶりに崩壊、ブルガリアでも親ロ野党が政権交代へ。米国ではクックCEO退任・FBI長官訴訟など動きが相次いだ。
+    </div>
   </header>
 
   <div class="toolbar">
-    <span class="toolbar-label">並び替え</span>
-    <button class="sort-btn on" onclick="setSort(this,'total')">総合スコア</button>
-    <button class="sort-btn" onclick="setSort(this,'importance')">重要度</button>
-    <button class="sort-btn" onclick="setSort(this,'interest')">関心度</button>
+    <span class="tl">並び替え</span>
+    <button class="sb on" onclick="setSort(this,'total')">総合</button>
+    <button class="sb" onclick="setSort(this,'importance')">重要度</button>
+    <button class="sb" onclick="setSort(this,'interest')">関心度</button>
+    <button class="sb" onclick="setSort(this,'date')">日付順</button>
   </div>
 
-  <div class="topic-list" id="topicList"></div>
+  <div class="cat-row">
+    <button class="cb on" onclick="setCat(this,'all')">すべて</button>
+    <button class="cb" onclick="setCat(this,'iran')">イラン・中東</button>
+    <button class="cb" onclick="setCat(this,'us')">米国</button>
+    <button class="cb" onclick="setCat(this,'china')">中国・アジア</button>
+    <button class="cb" onclick="setCat(this,'europe')">欧州</button>
+    <button class="cb" onclick="setCat(this,'other')">その他</button>
+  </div>
 
-  <div class="update-note">
+  <div class="count" id="count"></div>
+  <div class="topic-list" id="list"></div>
+
+  <div class="un">
     <strong>このページについて</strong><br>
-    ニュースデータはClaudeがウェブ検索して手動で更新しています。新しいトピックへの更新はClaude.aiで「最新ニュースを調べてHTMLを更新して」とリクエストしてください。
+    時事ドットコム国際欄の1週間分（4月14日〜21日）の記事をClaudeが収集・スコアリングしています。毎週火曜日にClaude.aiで「ニュースを更新」とリクエストし、生成されたHTMLをGitHubにアップロードしてください。
   </div>
 </div>
-
 <script>
-const catMeta = {
-  world:    { label: '国際',        cls: 'tw' },
-  economy:  { label: '経済',        cls: 'te' },
-  politics: { label: '政治',        cls: 'tp' },
-  tech:     { label: 'テクノロジー', cls: 'tt' }
-};
+const catLabel={iran:'イラン・中東',us:'米国',china:'中国・アジア',europe:'欧州',other:'その他'};
+const catCls={iran:'cw',us:'ce',china:'ck',europe:'cp',other:'cr'};
 
-const NEWS = [
-  {
-    id: 0,
-    title: "ホルムズ海峡「逆封鎖」：米・イラン二重管理で原油リスク急騰",
-    category: "world",
-    source: "時事ドットコム・global-scm.com",
-    importance: 96, interest: 91,
-    summary: "4月12日、トランプ大統領が米海軍によるホルムズ海峡「逆封鎖」を宣言。イランの通行料徴収を米軍が実力阻止する方針を示し、世界の原油輸送量の約20%が通過する要衝が前例のない二重管理状態に突入した。4月8日に一時停戦が伝えられたものの原油高の長期化は避けられない見通しで、日本を含むアジアのエネルギー輸入国に深刻な影響が広がっている。",
-    points: [
-      "米海軍がIRGC通行料支払船舶を阻止する「逆封鎖」を宣言（4月12日）",
-      "通行料の支払い自体がOFAC制裁違反となるリスクが発生",
-      "在台日系企業の67%が運賃高騰、65%が仕入コスト増を懸念",
-      "中東と直接取引のない製造業・小売業にも電力・物流コストで波及"
-    ],
-    importance_reason: "世界原油輸送の20%が通過する海峡の封鎖は各国のエネルギー安保に直撃",
-    interest_reason: "ガソリン・電気代・円相場を通じて国民生活への影響が広範かつ即時的",
-    links: [
-      { name: "ホルムズ海峡危機：情勢と実務リスク", media: "global-scm.com", desc: "逆封鎖の詳細・OFAC制裁リスク・企業への実務影響を網羅的に解説", url: "https://global-scm.com/blog/?p=6085" },
-      { name: "時事ドットコム 国際ニュース", media: "jiji.com", desc: "イラン攻撃・ホルムズ情勢の速報ニュース一覧", url: "https://www.jiji.com/jc/archives?g=int_archive_0" },
-      { name: "IMF 世界経済見通し（2026年4月）", media: "imf.org", desc: "中東紛争が世界成長率に与える影響をIMFが分析", url: "https://www.imf.org/ja/publications/weo/issues/2026/04/14/world-economic-outlook-april-2026" }
-    ],
-    related: ["中東・原油価格の最新動向", "ホルムズ封鎖の日本経済への影響", "イラン情勢の今後のシナリオ"]
-  },
-  {
-    id: 1,
-    title: "日銀4月会合（27・28日）：利上げ判断が今年最大の焦点",
-    category: "economy",
-    source: "日本経済新聞・野村証券・三井住友DS",
-    importance: 90, interest: 85,
-    summary: "4月27〜28日の日銀金融政策決定会合で追加利上げの是非が問われる。3月に2会合連続で据え置いた植田総裁は利上げ路線を維持しつつ中東情勢への警戒を示した。連合の賃上げデータが良好な一方、ホルムズ海峡危機による原油高・円安が新たな懸念材料として浮上し、市場では利上げ観測と慎重論が拮抗している。",
-    points: [
-      "3月会合で2会合連続の政策金利据え置きを決定",
-      "連合賃上げ率は2026年度も前年並みを維持（支店長会議4月6日確認）",
-      "中東原油高・円安が輸入物価を押し上げ、インフレ加速リスク",
-      "4月28日15:30に植田総裁の定例記者会見を予定"
-    ],
-    importance_reason: "日本の金融政策は円相場・住宅ローン・企業資金コストに直接連動",
-    interest_reason: "利上げ実施で住宅ローン・預金金利に即影響し個人の関心が極めて高い",
-    links: [
-      { name: "日銀・植田総裁の発言詳報", media: "nikkei.com", desc: "4月利上げの是非に関する植田総裁の発言を日経が分析", url: "https://www.nikkei.com/article/DGXZQOUB1709H0X10C26A4000000/" },
-      { name: "4月会合の利上げサインを読む", media: "nomura.co.jp", desc: "野村証券エグゼクティブストラテジストによる日銀会合詳細分析", url: "https://www.nomura.co.jp/wealthstyle/article/0682/" },
-      { name: "日銀 公表予定スケジュール", media: "boj.or.jp", desc: "金融政策決定会合・総裁会見の公式スケジュール", url: "https://www.boj.or.jp/about/calendar/index.htm" }
-    ],
-    related: ["日銀利上げと住宅ローンの影響", "植田総裁の最新発言まとめ", "円相場と利上げの関係"]
-  },
-  {
-    id: 2,
-    title: "IMF：中東紛争で世界成長率3.1%に下方修正",
-    category: "economy",
-    source: "IMF 世界経済見通し 2026年4月",
-    importance: 88, interest: 74,
-    summary: "IMFは4月の「世界経済見通し」で2026年の世界成長率を3.1%、2027年を3.2%と予測。中東での戦争勃発により一次産品価格上昇・インフレ・金融タイト化が同時進行し、パンデミック前平均を大きく下回る低成長が続く見通し。リスクは下振れ方向に傾いており、新興国・発展途上国への圧力集中が懸念される。",
-    points: [
-      "世界成長率：2026年3.1%・2027年3.2%（パンデミック前平均を大幅下回る）",
-      "一次産品価格上昇・インフレ期待・金融タイト化が三重に重なる",
-      "新興国・発展途上国への圧力が集中、高公的債務が脆弱性を深刻化",
-      "紛争長期化・地政学分断・AI生産性への失望が追加リスク"
-    ],
-    importance_reason: "主要国の財政・金融政策と日本の貿易環境に直結する権威ある見通し",
-    interest_reason: "景気後退リスクと投資環境への波及が明確で投資家・企業の注目が高い",
-    links: [
-      { name: "IMF 世界経済見通し（2026年4月）全文", media: "imf.org", desc: "中東紛争の影響分析・成長予測・政策提言を掲載した公式レポート", url: "https://www.imf.org/ja/publications/weo/issues/2026/04/14/world-economic-outlook-april-2026" }
-    ],
-    related: ["IMF予測と日本経済への影響", "2026年の世界景気後退リスク", "新興国へのリスク波及"]
-  },
-  {
-    id: 3,
-    title: "米の全世界関税15%：日米交渉が本格化",
-    category: "world",
-    source: "時事ドットコム・丸紅経済研究所",
-    importance: 85, interest: 88,
-    summary: "米国が全世界への15%一律関税を段階的に展開する中、日米間では4月24日に財務相会談を実施。為替水準は市場で決定するとの認識で一致したが、4月30日の第2回関税交渉で具体的な回避策が協議される予定。日本の輸出産業・製造業のサプライチェーン再編圧力が高まっている。",
-    points: [
-      "全世界15%関税が「5カ月で以前の水準に」と米財務長官が言及",
-      "日米財務相会談（4月24日）で為替の市場決定を確認",
-      "第2回日米関税交渉（4月30日）で具体的回避策を協議予定",
-      "自動車・電機など主要輸出産業のサプライチェーン再編が加速"
-    ],
-    importance_reason: "日本の輸出主力産業（自動車・電機）に直接影響する通商政策",
-    interest_reason: "物価・雇用・株価への波及が直接的で話題性・検索関心が非常に高い",
-    links: [
-      { name: "時事ドットコム 国際ニュース", media: "jiji.com", desc: "米関税政策・日米交渉の速報記事一覧", url: "https://www.jiji.com/jc/archives?g=int_archive_0" },
-      { name: "丸紅 週次経済ブリーフィング", media: "marubeni.com", desc: "日米交渉・米中貿易変調など経済動向のプロ向け分析", url: "https://www.marubeni.com/jp/research/report/data/WeeklyBriefing20250430.pdf" }
-    ],
-    related: ["日米関税交渉の最新状況", "関税15%が日本の物価に与える影響", "トランプ関税政策の全体像"]
-  },
-  {
-    id: 4,
-    title: "国会答弁にAI活用：松本デジタル相が方針表明",
-    category: "politics",
-    source: "時事ドットコム 2026年4月3日",
-    importance: 68, interest: 80,
-    summary: "松本デジタル相が国会答弁の作成プロセスにAIを活用する方針を4月に表明。霞が関の長時間労働是正を狙う一方、答弁内容の正確性やAIの政治的判断への関与に野党から懸念の声が上がっており、活用範囲の線引きが課題となっている。",
-    points: [
-      "国会答弁作成へのAI活用を松本デジタル相が正式表明",
-      "霞が関の深夜残業削減・行政効率化が主な目的",
-      "答弁の正確性・政治判断へのAI関与に野党から懸念",
-      "G7各国の議会AI活用との整合性も議論の対象に"
-    ],
-    importance_reason: "AI行政活用の先例として国内外の政策立案に影響する可能性",
-    interest_reason: "AIへの社会的関心の高さと行政効率化への賛否で広く話題になっている",
-    links: [
-      { name: "時事ドットコム 政治ニュース（4月）", media: "jiji.com", desc: "松本デジタル相の発言・国会AI活用に関する速報", url: "https://www.jiji.com/jc/archives?g=pol_archive_0" }
-    ],
-    related: ["行政AI活用の海外事例", "国会答弁AIの問題点と利点", "日本のデジタル行政の現状"]
-  }
+const NEWS=[
+  {id:0,cat:'iran',date:'4/21',d:21,isNew:true,
+   title:'バンス副大統領、本日イスラマバードへ出発　停戦期限「22日夜」目前',
+   src:'時事ドットコム',
+   importance:97,interest:96,
+   summary:'バンス米副大統領が21日、イランとの戦闘終結を目指す2度目の協議のため仲介国パキスタンの首都イスラマバードに向けて出発。米軍は19日にアラビア海北部でイランの貨物船を拿捕し圧力を強めている。停戦期限は22日夜に迫っており、イラン側は再協議を表向き否定しつつも前向き検討との情報もある。',
+   points:['バンス副大統領が21日にイスラマバードへ出発、2度目の停戦協議へ','米軍が19日にアラビア海北部でイラン貨物船を拿捕、経済面で圧力強化','停戦期限は22日夜に設定、イランは再協議を表向き否定','ロイター：イラン高官が再協議参加を前向き検討との情報'],
+   ir:'停戦か戦闘再開かで原油価格・エネルギー安保が決定的に左右される',
+   nr:'停戦期限22日夜が目前に迫り時間的緊迫感で検索・関心が急上昇',
+   links:[
+     {n:'米、貨物船拿捕で圧力　停戦合意、期限切れ迫る',m:'jiji.com',d:'バンス派遣・貨物船拿捕・停戦期限の詳報',u:'https://www.jiji.com/jc/article?k=2026042000093&g=int'},
+     {n:'米副大統領、パキスタンへ21日出発',m:'jiji.com',d:'バンス副大統領出発の速報',u:'https://www.jiji.com/jc/article?k=2026042100110&g=int&m=rss'},
+   ],
+   related:['停戦期限後の米イラン情勢シナリオは？','ホルムズ海峡封鎖が続いた場合の影響は？']},
+
+  {id:1,cat:'iran',date:'4/20',d:20,isNew:true,
+   title:'NY原油が再び90ドル超　ホルムズ「開放」期待が低下',
+   src:'時事ドットコム',
+   importance:95,interest:93,
+   summary:'ニューヨーク原油先物が再び90ドルを超えた。ホルムズ海峡正常化への期待が低下したためで、停戦期限を前に市場の緊張感が高まっている。イラン革命防衛隊は「接近艦艇を攻撃する」と宣言。ホルムズ海峡通過はわずか77隻で大半が「影の船団」とされる。',
+   points:['NYWTIが再び90ドル超、ホルムズ開放期待の低下が要因','イラン革命防衛隊が「ホルムズ海峡接近なら攻撃」と宣言','ホルムズ海峡通過は77隻のみ、大半が制裁逃れの「影の船団」','中国はロシア産・イラン産原油を買い増しで対応'],
+   ir:'原油価格の動向が日本のエネルギー・物価・金融政策に直結',
+   nr:'ガソリン・電気代・航空運賃への即波及で国民的関心が高い',
+   links:[
+     {n:'NY原油、再び90ドル超',m:'jiji.com',d:'4月20日の原油動向と市場の見方',u:'https://www.jiji.com/jc/c?g=int'},
+     {n:'中国、ロシア産原油輸入が急増　イラン産も買い増しか',m:'jiji.com',d:'中国の原油調達戦略変化の詳報',u:'https://www.jiji.com/jc/article?k=2026042001038&g=int'},
+   ],
+   related:['原油90ドル超が続くと日本経済にどう影響する？','中国の代替原油調達の戦略的意味は？']},
+
+  {id:2,cat:'us',date:'4/21',d:21,isNew:true,
+   title:'アップル・クックCEOが退任へ　15年ぶり交代、後任はターナス氏',
+   src:'時事ドットコム',
+   importance:88,interest:94,
+   summary:'米アップルのティム・クックCEOが退任することが明らかになった。2011年にジョブズ氏の後を継いで就任してから約15年ぶりの経営トップ交代。後任はターナス氏で、AI時代のアップルをどう率いるかが注目される。',
+   points:['ティム・クックCEOが退任、2011年就任以来約15年で交代','後任はターナス氏、AI戦略・製品展開の方向性に注目','クック体制でアップルは時価総額世界最大級に成長','AI競争激化の中でのトップ交代で市場への影響が焦点'],
+   ir:'世界最大級の時価総額企業の経営交代は市場・産業全体に影響',
+   nr:'クック時代の終わりとAI時代の新経営で世界的注目が集まる',
+   links:[
+     {n:'米アップル、クックCEO退任へ　15年ぶり交代',m:'jiji.com',d:'クックCEO退任・後任人事の詳報',u:'https://www.jiji.com/jc/article?k=2026042100182&g=int'},
+   ],
+   related:['ターナス次期CEOのアップル戦略は？','クック体制の15年間の主な成果は？']},
+
+  {id:3,cat:'europe',date:'4/14',d:14,isNew:false,
+   title:'ハンガリーでオルバン首相が敗北　16年ぶり政権交代へ　45歳マジャル氏が次期首相候補に',
+   src:'時事ドットコム',
+   importance:85,interest:83,
+   summary:'ハンガリー総選挙で新興野党が大勝し、16年間政権を握ってきたオルバン首相が敗北した。次期首相候補にはマジャル氏（45歳、政界入り2年）が浮上。同氏は中ロとの距離を置き、ウクライナに理解を示す「脱オルバン路線」を鮮明にしている。バンス米副大統領は敗北を「残念」と発言した。',
+   points:['オルバン首相が16年ぶりに敗北、新興野党が大勝','次期首相候補マジャル氏は45歳・政界入り2年の新星','脱オルバン路線：中ロと距離、ウクライナに理解','ゼレンスキー大統領はEUからの巨額融資実現を楽観視'],
+   ir:'親ロ・反EU路線のオルバン政権崩壊はEU・NATO結束の強化に直結',
+   nr:'16年政権の終焉という歴史的出来事で欧州政治への関心が高い',
+   links:[
+     {n:'オルバン首相が敗北　16年ぶり政権交代へ',m:'jiji.com',d:'ハンガリー総選挙結果・マジャル氏の詳報',u:'https://www.jiji.com/jc/article?k=2026041300121&g=int'},
+     {n:'イランへの武器供与に警告　中国が準備',m:'jiji.com',d:'マジャル氏の脱オルバン路線紹介含む',u:'https://www.jiji.com/jc/article?k=2026041200164&g=int'},
+   ],
+   related:['ハンガリー新政権のEU・NATO政策はどう変わる？','マジャル次期首相候補の経歴・政策は？']},
+
+  {id:4,cat:'us',date:'4/17',d:17,isNew:false,
+   title:'G20財務相会議、議長の米国が「協調軽視」　中東危機の打開見えず',
+   src:'時事ドットコム',
+   importance:82,interest:74,
+   summary:'4月17日に開催されたG20財務相会議では議長国・米国の「協調軽視」姿勢が拭えず、中東危機への打開策も見えないまま存在意義が揺らいでいる。南ア財務相は4月13日時点で不参加を表明、米国が認めないとして中銀総裁も欠席する異例の事態となった。',
+   points:['G20財務相会議で米国の「協調軽視」姿勢が鮮明に','南アフリカの財務相・中銀総裁が不参加（米国が認めず）','中東危機への国際協調の場として存在意義が揺らぐ','G20肥料供給協議開催へ　ホルムズ封鎖の悪影響拡大'],
+   ir:'G20の機能低下は国際金融協調・グローバル経済ガバナンスに影響',
+   nr:'米国第一主義の国際機関への影響が具体例として注目',
+   links:[
+     {n:'議長の米国、「協調軽視」拭えず　中東危機、打開不透明',m:'jiji.com',d:'G20財務相会議の総括分析',u:'https://www.jiji.com/'},
+   ],
+   related:['G20の機能低下が日本に与える影響は？','米国第一主義と国際協調の両立は可能か？']},
+
+  {id:5,cat:'iran',date:'4/17',d:17,isNew:false,
+   title:'イスラエルとレバノンが停戦合意　トランプ主導で10日間',
+   src:'時事ドットコム',
+   importance:80,interest:72,
+   summary:'トランプ大統領主導でイスラエルとレバノンが10日間の停戦に合意。4月14日にはヒズボラ巡る直接協議も実施された。ただしイスラエル国防相は停戦下でもレバノン南部で攻撃を継続、「緩衝地帯」設置を進めるなど緊張は完全には収まっていない。',
+   points:['トランプ氏主導でイスラエル・レバノンが10日間停戦','4月14日：ヒズボラ巡り直接協議を実施','レバノン死者1000人超、大統領と仏外相が会談','ただしイスラエル国防相は停戦下でも攻撃継続を指示'],
+   ir:'中東和平プロセスの進展は地域安定とエネルギー安保に直結',
+   nr:'トランプ外交の成果かどうかで国際的評価が分かれる',
+   links:[
+     {n:'イスラエルとレバノンが停戦合意　トランプ氏主導で10日間',m:'jiji.com',d:'停戦合意の詳報と米イラン交渉への影響',u:'https://www.jiji.com/jc/article?k=2026041700175&g=int'},
+   ],
+   related:['中東和平プロセスの今後の見通しは？','ヒズボラの現在の立場は？']},
+
+  {id:6,cat:'iran',date:'4/14',d:14,isNew:false,
+   title:'ローマ教皇レオ14世がトランプ氏批判　「反戦の声、上げ続ける」',
+   src:'時事ドットコム・Bloomberg',
+   importance:72,interest:85,
+   summary:'ローマ教皇レオ14世がトランプ大統領との対立を恐れず「反戦の声を上げ続ける」と表明。トランプ氏は12日にSNSで「教皇は犯罪・核兵器に弱腰」と攻撃、教皇は16日カメルーンで「世界は一握りの暴君によって荒廃」と反論した。カトリック米国籍の教皇と米大統領の対立は前例のない事態となっている。',
+   points:['教皇レオ14世「反戦の声、上げ続ける」とトランプ氏批判に対抗','トランプ氏「教皇は犯罪・核兵器に弱腰」とSNSで攻撃（12日）','教皇「世界は一握りの暴君により荒廃」と応酬（16日カメルーン）','英国教会トップが教皇を支持、米カトリック内で動揺','Bloomberg：対立で最大の敗者はバンス副大統領（カトリック）'],
+   ir:'米国政治・宗教・国際外交の交差点での前例のない対立',
+   nr:'トランプVS教皇という象徴的対立で幅広い層の関心を集める',
+   links:[
+     {n:'ローマ教皇、トランプ氏を恐れず　「反戦の声、上げ続ける」',m:'jiji.com',d:'教皇とトランプ氏の対立構図の詳報',u:'https://www.jiji.com/jc/article?k=2026041400132&g=int'},
+     {n:'ローマ教皇「暴君によって世界が荒廃」　カメルーンで発言',m:'jiji.com',d:'教皇のカメルーン歴訪時の発言詳報',u:'https://www.jiji.com/jc/article?k=2026041700226&g=int'},
+   ],
+   related:['バチカンとトランプ政権の対立の今後は？','バンス副大統領の立場は？']},
+
+  {id:7,cat:'us',date:'4/21',d:21,isNew:true,
+   title:'米関税還付の新システム稼働　支払いに60〜90日',
+   src:'時事ドットコム',
+   importance:78,interest:76,
+   summary:'米税関・国境警備局（CBP）が20日、連邦最高裁が無効と判断したIEEPAに基づく相互関税などの還付手続きを行う新システムを稼働。輸入企業がシステム経由で返還を申請でき、還付は原則60〜90日。日本郵便は米国向け郵便の引き受けを再開、事前関税支払いが必要となった。',
+   points:['CBPが関税還付の新システムを4月20日に稼働開始','連邦最高裁が無効と判断したIEEPA関税の返還が対象','還付期間は原則60〜90日、対象を段階的に拡大予定','日本郵便：米国向け郵便引き受け再開、事前関税支払いが必要'],
+   ir:'日米間の貿易コスト・企業の資金繰りに直接影響する実務的措置',
+   nr:'輸出入企業の経営実務に直結し、ビジネス関係者の関心が高い',
+   links:[
+     {n:'関税還付、新システム稼働　支払いに60〜90日',m:'jiji.com',d:'CBPの関税還付システム稼働の詳報',u:'https://www.jiji.com/jc/article?k=2026042100158&g=int'},
+   ],
+   related:['IEEPA関税無効判決の詳細は？','関税還付申請の手続き方法は？']},
+
+  {id:8,cat:'europe',date:'4/20',d:20,isNew:true,
+   title:'ブルガリアで親ロ野党が政権交代へ　5年で8回目の総選挙',
+   src:'時事ドットコム',
+   importance:75,interest:70,
+   summary:'ブルガリアで親ロシア野党が政権交代する見通し。5年間で8回目という異例の頻繁な総選挙を経て、ウクライナ戦争・EU政策への影響が懸念されている。ハンガリーのオルバン敗北と対照的に、東欧で政治地図の激しい変動が続いている。',
+   points:['ブルガリアで親ロシア野党が第1党、政権交代へ','5年で8回目の異例の頻繁な総選挙','ハンガリー・オルバン敗北とは対照的に親ロ傾斜','ブルガリアは2026年1月にユーロ導入した国でもある'],
+   ir:'EU加盟国の親ロ化はウクライナ支援・対ロ制裁に影響',
+   nr:'東欧政治地図の変動として欧州情勢に関心が高い',
+   links:[
+     {n:'親ロ野党が第1党　5年で8回目総選挙―ブルガリア',m:'jiji.com',d:'ブルガリア総選挙結果の詳報',u:'https://www.jiji.com/jc/article?k=2026042000140&g=int'},
+   ],
+   related:['東欧諸国の親ロ化傾向は？','ブルガリアのEU内での立ち位置は？']},
+
+  {id:9,cat:'europe',date:'4/20',d:20,isNew:true,
+   title:'英国がEU再接近を加速　離脱6年、規制統合にかじ',
+   src:'時事ドットコム',
+   importance:76,interest:72,
+   summary:'英国がEU離脱から6年を経てEU再接近を加速させている。規制統合に向けた動きが本格化し、スターマー政権のもとで実務的な関係修復が進む。エプスタイン疑惑で前大使任命責任が問われ支持率低迷の首相にとって対EU成果が重要課題となっている。',
+   points:['英国、離脱6年を経てEU規制統合にかじを切る','スターマー政権下で実務的な関係修復が進行','英首相がエプスタイン疑惑で前大使任命責任に窮地、支持率低迷','英国王が27日から訪米、トランプ大統領と会談予定'],
+   ir:'ブレグジット後の欧州秩序の再編に直結する動き',
+   nr:'ブレグジットの「失敗」評価と再統合議論で注目度が高い',
+   links:[
+     {n:'英、EUへ再接近加速　離脱6年、規制統合にかじ',m:'jiji.com',d:'英EU関係再構築の詳報',u:'https://www.jiji.com/jc/c?g=int'},
+   ],
+   related:['ブレグジット後の英国経済への影響は？','英国王の訪米の狙いは？']},
+
+  {id:10,cat:'europe',date:'4/20',d:20,isNew:true,
+   title:'仏大統領選まで1年　「極右元首」誕生か焦点',
+   src:'時事ドットコム',
+   importance:78,interest:76,
+   summary:'フランス大統領選挙まで約1年。右派ポピュリスト勢力の台頭が「極右元首」誕生の可能性を高めている。共和党は党員投票でルタイヨー前内相を大統領選候補に選出。ハンガリー政権交代と合わせ欧州政治地図が激変中だ。',
+   points:['仏大統領選まで約1年、極右勢力が支持率上位を維持','共和党がルタイヨー前内相を大統領選候補に選出','「極右元首」誕生なら欧州統合・対ロシア姿勢に激変','ハンガリー・ブルガリアと合わせ欧州政治地図が大変動中'],
+   ir:'フランスは欧州最大の核保有国・EU主要国で大統領選はEU安保の根幹',
+   nr:'「極右元首」の可能性と欧州統合への影響で注目が高い',
+   links:[
+     {n:'「極右元首」誕生か焦点　来春のフランス大統領選まで1年',m:'jiji.com',d:'仏大統領選の情勢分析',u:'https://www.jiji.com/jc/c?g=int'},
+   ],
+   related:['フランス大統領選の有力候補を比較して','ルペン氏の現在の支持率は？']},
+
+  {id:11,cat:'us',date:'4/21',d:21,isNew:true,
+   title:'FBI長官パテル氏がアトランティック誌を400億円で提訴',
+   src:'時事ドットコム',
+   importance:62,interest:79,
+   summary:'FBI長官パテル氏が20日、飲酒問題を巡る虚偽記事を掲載されたとしてアトランティック誌を提訴。賠償額は約400億円。同誌は現職・元職FBI職員20人以上の匿名証言に基づき「FBIに連絡が取れなくなった」と報道していた。',
+   points:['FBI長官パテル氏がアトランティック誌を約400億円で提訴','アトランティック誌は20人以上の証言で飲酒問題を報道','トランプ政権下でメディアへの訴訟・法的圧力が相次ぐ','WSJへのトランプ氏訴訟は先日連邦地裁が棄却済み'],
+   ir:'報道の自由・司法独立性への懸念はデモクラシーの根幹に関わる',
+   nr:'政府によるメディア提訴という異例の展開で国際的注目',
+   links:[
+     {n:'FBI長官、飲酒報道で米誌提訴　400億円賠償請求',m:'jiji.com',d:'パテル長官の訴訟詳報',u:'https://www.jiji.com/jc/article?k=2026042100203&g=int'},
+   ],
+   related:['アトランティック誌とトランプ政権の対立の経緯は？','米国の報道の自由の現状は？']},
+
+  {id:12,cat:'china',date:'4/20',d:20,isNew:true,
+   title:'米比が多国間演習を開始　自衛隊1400人が本格参加',
+   src:'時事ドットコム',
+   importance:70,interest:65,
+   summary:'米国とフィリピンが多国間軍事演習を開始、自衛隊から1400人が派遣され初の本格参加となった。中国による南シナ海での活動活発化を受けた抑止力強化の一環で、インド太平洋の安全保障協力が新段階に入った。',
+   points:['米比多国間演習に自衛隊1400人が初の本格参加','中国の南シナ海活動活発化への抑止力強化が狙い','4月19日：中国軍の危険行為に日豪防衛相が懸念表明','インド太平洋安保協力が新段階へ'],
+   ir:'インド太平洋安保秩序の維持と対中抑止力の強化に直結',
+   nr:'自衛隊の海外本格派遣は議論を呼ぶテーマとして注目',
+   links:[
+     {n:'米比、多国間演習を開始　自衛隊1400人派遣、初の本格参加',m:'jiji.com',d:'米比演習と自衛隊参加の詳報',u:'https://www.jiji.com/jc/article?k=2026042000140&g=int'},
+   ],
+   related:['自衛隊の海外演習参加の法的根拠は？','中国の南シナ海戦略の現状は？']},
+
+  {id:13,cat:'china',date:'4/20',d:20,isNew:true,
+   title:'北朝鮮が再びクラスター弾実験　金正恩氏「攻撃能力向上」',
+   src:'時事ドットコム',
+   importance:68,interest:62,
+   summary:'北朝鮮が再びクラスター弾の実験を実施し、金正恩氏が「攻撃能力向上」を主張した。東部からは弾道ミサイル数発も発射され（SLBMの可能性、EEZ飛来なし）、朝鮮半島情勢は依然として不安定。米朝の情報共有縮小の問題も浮上している。',
+   points:['北朝鮮が再びクラスター弾を実験、金正恩氏が攻撃能力向上を主張','東部から弾道ミサイル数発発射（SLBMの可能性）','EEZ飛来はなし','米国が北朝鮮情報の提供を縮小か、韓国統一相が問題視'],
+   ir:'朝鮮半島の軍事的緊張は日本の安保にも直接関わる',
+   nr:'北朝鮮の軍事挑発は国内世論の安保意識に影響',
+   links:[
+     {n:'北朝鮮、再びクラスター弾実験　金正恩氏「攻撃能力向上」主張',m:'jiji.com',d:'北朝鮮のミサイル実験詳報',u:'https://www.jiji.com/jc/article?k=2026042000140&g=int'},
+   ],
+   related:['北朝鮮のミサイル開発の現状は？','米朝情報共有縮小の意味は？']},
+
+  {id:14,cat:'other',date:'4/21',d:21,isNew:true,
+   title:'英エリザベス女王生誕100年　特別展・記念行事を開催',
+   src:'時事ドットコム',
+   importance:42,interest:68,
+   summary:'英国史上最長70年在位し2022年に死去したエリザベス女王が本日4月21日で生誕100年。ロンドンでは特別展が開催中で記念行事も予定されている。1926年生まれ、1952年に25歳で即位、2022年9月に96歳で死去した。',
+   points:['2026年4月21日がエリザベス女王の生誕100周年','1926年生まれ、1952年に25歳で即位、2022年9月に96歳で死去','在位70年は英国史上最長の記録','ロンドンで特別展・記念行事を開催中'],
+   ir:'英国の国民的行事として社会的意義は大きいが政治経済への影響は限定的',
+   nr:'歴史的節目と愛された女王への関心で国内外から注目',
+   links:[
+     {n:'21日、エリザベス女王生誕100年　特別展開催',m:'jiji.com',d:'エリザベス女王生誕100年記念行事の詳報',u:'https://www.jiji.com/jc/article?k=2026042000833&g=int'},
+   ],
+   related:['エリザベス女王の在位70年間の主な出来事は？','英国王室の現在の状況は？']},
 ];
 
-let sortMode = 'total';
-let selectedId = null;
+let sortMode='total', catMode='all', selId=null;
 
-function setSort(btn, mode) {
-  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  sortMode = mode;
-  selectedId = null;
-  render();
-}
+function setSort(btn,m){document.querySelectorAll('.sb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');sortMode=m;selId=null;render();}
+function setCat(btn,m){document.querySelectorAll('.cb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');catMode=m;selId=null;render();}
 
-function getSorted() {
-  return [...NEWS].sort((a, b) => {
-    if (sortMode === 'importance') return b.importance - a.importance;
-    if (sortMode === 'interest')   return b.interest   - a.interest;
-    return (b.importance + b.interest) - (a.importance + a.interest);
+function score(a){if(sortMode==='importance')return a.importance;if(sortMode==='interest')return a.interest;if(sortMode==='date')return a.d;return Math.round((a.importance+a.interest)/2);}
+function scoreLbl(){if(sortMode==='importance')return '重要度';if(sortMode==='interest')return '関心度';if(sortMode==='date')return '日付';return '総合';}
+
+function getSorted(){
+  const f=catMode==='all'?NEWS:NEWS.filter(a=>a.cat===catMode);
+  return [...f].sort((a,b)=>{
+    if(sortMode==='importance')return b.importance-a.importance;
+    if(sortMode==='interest')return b.interest-a.interest;
+    if(sortMode==='date')return b.d-a.d;
+    return(b.importance+b.interest)-(a.importance+a.interest);
   });
 }
 
-function score(a) {
-  if (sortMode === 'importance') return a.importance;
-  if (sortMode === 'interest')   return a.interest;
-  return Math.round((a.importance + a.interest) / 2);
-}
+function toggle(id){selId=selId===id?null:id;render();}
 
-function scoreLbl() {
-  if (sortMode === 'importance') return '重要度';
-  if (sortMode === 'interest')   return '関心度';
-  return '総合';
-}
-
-function toggle(id) {
-  selectedId = selectedId === id ? null : id;
-  render();
-}
-
-function render() {
-  const sorted = getSorted();
-  const list = document.getElementById('topicList');
-  let html = '';
-
-  sorted.forEach((a, i) => {
-    const cat = catMeta[a.category];
-    const rncls = i===0?'rn1':i===1?'rn2':i===2?'rn3':'rno';
-    const sel = selectedId === a.id ? 'sel' : '';
-    html += `<div class="topic-row ${sel}" onclick="toggle(${a.id})">
-      <div class="rank-num ${rncls}">${i+1}</div>
-      <div class="topic-main">
-        <div class="topic-title">${a.title}</div>
-        <div class="topic-sub">${a.source}</div>
+function render(){
+  const sorted=getSorted();
+  document.getElementById('count').textContent=`${sorted.length}件を表示中`;
+  let html='';
+  sorted.forEach((a,i)=>{
+    const rc=i===0?'r1':i===1?'r2':i===2?'r3':'ro';
+    const sel=selId===a.id?'sel':'';
+    const nb=a.isNew?'<span class="nb">NEW</span>':'';
+    const cl=catCls[a.cat]||'cr';
+    const lbl=catLabel[a.cat]||a.cat;
+    const sd=sortMode==='date'?a.date:score(a);
+    const sdl=sortMode==='date'?'日付':scoreLbl();
+    html+=`<div class="tr ${sel}" onclick="toggle(${a.id})">
+      <div class="rn ${rc}">${i+1}</div>
+      <div class="tm"><div class="tt">${a.title}</div><div class="ts"><span class="date">${a.date}</span><span>${a.src}</span></div></div>
+      <div class="mb">
+        <div class="mr"><span class="ml">重要</span><div class="mt"><div class="mi" style="width:${a.importance}%"></div></div></div>
+        <div class="mr"><span class="ml">関心</span><div class="mt"><div class="mn" style="width:${a.interest}%"></div></div></div>
       </div>
-      <div class="mini-bars">
-        <div class="mini-bar-row"><span class="mini-label">重要</span><div class="mini-track"><div class="mini-fill-i" style="width:${a.importance}%"></div></div></div>
-        <div class="mini-bar-row"><span class="mini-label">関心</span><div class="mini-track"><div class="mini-fill-n" style="width:${a.interest}%"></div></div></div>
-      </div>
-      <div class="score-col">
-        <div class="score-big">${score(a)}</div>
-        <div class="score-tiny">${scoreLbl()}</div>
-      </div>
-      <span class="cat-tag ${cat.cls}">${cat.label}</span>
-      <span class="chevron">›</span>
+      <div class="sc"><div class="sv">${sd}</div><div class="sl">${sdl}</div></div>
+      <span class="ct ${cl}">${lbl}</span>
+      ${nb}
+      <span class="ch">›</span>
     </div>`;
-
-    if (selectedId === a.id) {
-      const total = Math.round((a.importance + a.interest) / 2);
-      html += `<div class="detail-box">
-        <div class="d-tag-row">
-          <span class="cat-tag ${cat.cls}">${cat.label}</span>
-          <span class="d-source">${a.source}</span>
+    if(selId===a.id){
+      const total=Math.round((a.importance+a.interest)/2);
+      html+=`<div class="db">
+        <div class="dtr"><span class="ct ${cl}">${lbl}</span>${a.isNew?'<span class="nb">NEW</span>':''}<span class="date">${a.date}</span><span class="dso">${a.src}</span></div>
+        <div class="dti">${a.title}</div>
+        <div class="dsc">
+          <div class="dc"><div class="dv" style="color:#185FA5">${a.importance}</div><div class="dl">重要度</div><div class="dw">${a.ir}</div></div>
+          <div class="dc"><div class="dv" style="color:#0F6E56">${a.interest}</div><div class="dl">関心度</div><div class="dw">${a.nr}</div></div>
+          <div class="dc"><div class="dv">${total}</div><div class="dl">総合スコア</div></div>
         </div>
-        <div class="d-title">${a.title}</div>
-        <div class="d-scores">
-          <div class="ds-cell">
-            <div class="ds-val" style="color:#185FA5">${a.importance}</div>
-            <div class="ds-lbl">重要度</div>
-            <div class="ds-why">${a.importance_reason}</div>
-          </div>
-          <div class="ds-cell">
-            <div class="ds-val" style="color:#0F6E56">${a.interest}</div>
-            <div class="ds-lbl">関心度</div>
-            <div class="ds-why">${a.interest_reason}</div>
-          </div>
-          <div class="ds-cell">
-            <div class="ds-val">${total}</div>
-            <div class="ds-lbl">総合スコア</div>
-          </div>
-        </div>
-        <div class="d-summary">${a.summary}</div>
-        <div class="section-lbl">主なポイント</div>
-        <div class="points-list">${a.points.map(p=>`<div class="point-item"><div class="point-dot"></div><span>${p}</span></div>`).join('')}</div>
-        <div class="section-lbl">関連記事・参考リンク</div>
-        <div class="links-grid">${a.links.map(l=>`
-          <a class="link-card" href="${l.url}" target="_blank" rel="noopener">
-            <div class="link-icon">${l.media.substring(0,2).toUpperCase()}</div>
-            <div class="link-body">
-              <div class="link-name">${l.name}</div>
-              <div class="link-desc">${l.desc}</div>
-              <div class="link-url">${l.url}</div>
-            </div>
-          </a>`).join('')}
-        </div>
-        <div class="section-lbl">関連キーワード</div>
-        <div class="related-chips">${a.related.map(r=>`<span class="rel-chip">${r}</span>`).join('')}</div>
+        <div class="dsu">${a.summary}</div>
+        <div class="sl2">主なポイント</div>
+        <div class="pl">${a.points.map(p=>`<div class="pi"><div class="pd"></div><span>${p}</span></div>`).join('')}</div>
+        <div class="sl2">関連記事・参考リンク</div>
+        <div class="lg">${a.links.map(l=>`<a class="lc" href="${l.u}" target="_blank" rel="noopener"><div class="li">${l.m.substring(0,2).toUpperCase()}</div><div class="lb"><div class="ln">${l.n}</div><div class="ld">${l.d}</div><div class="lu">${l.u}</div></div></a>`).join('')}</div>
+        <div class="sl2">関連キーワード</div>
+        <div class="rc">${a.related.map(r=>`<span class="rch">${r}</span>`).join('')}</div>
       </div>`;
     }
   });
-
-  list.innerHTML = html;
+  document.getElementById('list').innerHTML=html||'<div style="padding:2rem;text-align:center;color:var(--text3);font-size:14px;">このカテゴリの記事はありません</div>';
 }
-
 render();
 </script>
 </body>
