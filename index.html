@@ -32,81 +32,253 @@
   --red-bg:#2e0a0a; --red-t:#F09595;
   --pink-bg:#2e0a1a; --pink-t:#ED93B1;
 }}
-body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:100vh;}
-.page{max-width:720px;margin:0 auto;padding:2rem 1rem 4rem;}
-header{margin-bottom:1.5rem;}
-header h1{font-size:22px;font-weight:600;}
-header p{font-size:13px;color:var(--text2);margin-top:4px;}
-header small{font-size:11px;color:var(--text3);}
-.summary-box{margin-top:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:var(--r);font-size:12px;color:var(--text2);line-height:1.6;}
-.summary-box strong{color:var(--text);font-weight:600;}
-.toolbar{display:flex;gap:8px;align-items:center;margin:1.25rem 0 .75rem;flex-wrap:wrap;}
-.tl{font-size:12px;color:var(--text3);}
-.sb{font-size:12px;padding:5px 14px;border-radius:20px;border:1px solid var(--bd2);background:var(--bg);color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .15s;}
-.sb.on{background:var(--blue-bg);color:var(--blue-t);border-color:var(--blue-m);}
-.sb:hover:not(.on){background:var(--bg2);}
-.cat-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem;}
-.cb{font-size:11px;padding:4px 11px;border-radius:14px;border:1px solid var(--bd2);background:var(--bg);color:var(--text2);cursor:pointer;font-family:var(--font);}
-.cb.on{background:var(--blue-bg);color:var(--blue-t);border-color:var(--blue-m);}
-.count{font-size:11px;color:var(--text3);margin-bottom:8px;}
-.topic-list{display:flex;flex-direction:column;gap:8px;}
-.tr{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);cursor:pointer;transition:border-color .15s;}
-.tr:hover{border-color:var(--bd2);}
-.tr.sel{border-color:var(--blue-m);border-width:1.5px;}
-.rn{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;}
-.r1{background:var(--blue-bg);color:var(--blue-t);}
-.r2{background:var(--green-bg);color:var(--green-t);}
-.r3{background:var(--amber-bg);color:var(--amber-t);}
-.ro{background:var(--bg2);color:var(--text2);}
-.tm{flex:1;min-width:0;}
-.tt{font-size:13px;font-weight:600;color:var(--text);line-height:1.4;}
-.ts{font-size:11px;color:var(--text3);margin-top:2px;display:flex;gap:6px;align-items:center;}
-.date{font-size:10px;color:var(--text3);background:var(--bg2);padding:1px 6px;border-radius:4px;}
-.mb{display:flex;flex-direction:column;gap:4px;width:72px;flex-shrink:0;}
-.mr{display:flex;gap:4px;align-items:center;}
-.ml{font-size:9px;color:var(--text3);width:22px;}
-.mt{flex:1;height:3px;background:var(--bg2);border-radius:2px;overflow:hidden;}
-.mi{height:3px;background:var(--blue-m);border-radius:2px;}
-.mn{height:3px;background:var(--green-m);border-radius:2px;}
-.sc{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;}
-.sv{font-size:20px;font-weight:600;line-height:1;}
-.sl{font-size:10px;color:var(--text3);margin-top:2px;}
-.ct{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;flex-shrink:0;}
-.cw{background:var(--purple-bg);color:var(--purple-t);}
-.ce{background:var(--teal-bg);color:var(--teal-t);}
-.cp{background:var(--blue-bg);color:var(--blue-t);}
-.ck{background:var(--amber-bg);color:var(--amber-t);}
-.cr{background:var(--pink-bg);color:var(--pink-t);}
-.nb{font-size:10px;padding:1px 6px;border-radius:8px;background:var(--red-bg);color:var(--red-t);font-weight:600;flex-shrink:0;}
-.ch{font-size:16px;color:var(--text3);flex-shrink:0;transition:transform .2s;}
-.tr.sel .ch{transform:rotate(90deg);}
-.db{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:1.5rem;margin:.5rem 0;}
-.dtr{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
-.dso{font-size:11px;color:var(--text3);}
-.dti{font-size:16px;font-weight:600;line-height:1.45;margin-bottom:14px;}
-.dsc{display:flex;margin-bottom:16px;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;}
-.dc{flex:1;padding:12px;text-align:center;background:var(--bg2);border-right:1px solid var(--bd);}
-.dc:last-child{border-right:none;}
-.dv{font-size:22px;font-weight:700;}
-.dl{font-size:10px;color:var(--text3);margin-top:2px;}
-.dw{font-size:10px;color:var(--text3);margin-top:5px;line-height:1.4;}
-.dsu{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px;}
-.sl2{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;margin-top:16px;}
-.pl{display:flex;flex-direction:column;gap:7px;}
-.pi{display:flex;gap:8px;font-size:13px;color:var(--text2);line-height:1.55;}
-.pd{width:5px;height:5px;border-radius:50%;background:var(--blue-m);flex-shrink:0;margin-top:7px;}
-.lg{display:flex;flex-direction:column;gap:8px;}
-.lc{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--bd);border-radius:var(--r);text-decoration:none;background:var(--bg);transition:border-color .15s;}
-.lc:hover{border-color:var(--bd2);}
-.li{width:30px;height:30px;border-radius:6px;flex-shrink:0;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2);}
-.lb{flex:1;min-width:0;}
-.ln{font-size:13px;font-weight:600;color:var(--text);}
-.ld{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4;}
-.lu{font-size:10px;color:var(--blue-s);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.rc{display:flex;gap:6px;flex-wrap:wrap;}
-.rch{font-size:12px;padding:5px 12px;border-radius:14px;border:1px solid var(--bd2);background:var(--bg);color:var(--text2);font-family:var(--font);}
-.un{margin-top:3rem;padding:1rem 1.25rem;background:var(--bg2);border-radius:var(--r);font-size:12px;color:var(--text3);line-height:1.7;}
-.un strong{color:var(--text2);}
+
+html, body {
+  font-family: var(--font);
+  background: var(--bg3);
+  color: var(--text);
+  min-height: 100vh;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  -webkit-writing-mode: horizontal-tb !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+  line-break: auto;
+}
+* { writing-mode: horizontal-tb !important; }
+
+.page { max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+header { margin-bottom: 1.25rem; }
+header h1 { font-size: 20px; font-weight: 600; line-height: 1.3; }
+header p { font-size: 13px; color: var(--text2); margin-top: 4px; line-height: 1.5; }
+header small { font-size: 11px; color: var(--text3); }
+.summary-box {
+  margin-top: 12px; padding: 12px 14px;
+  background: var(--bg); border: 1px solid var(--bd);
+  border-radius: var(--r); font-size: 12px;
+  color: var(--text2); line-height: 1.7;
+}
+.summary-box strong { color: var(--text); font-weight: 600; }
+
+.toolbar { display: flex; gap: 6px; align-items: center; margin: 1rem 0 .5rem; flex-wrap: wrap; }
+.tl { font-size: 12px; color: var(--text3); width: 100%; margin-bottom: 4px; }
+.sb {
+  font-size: 12px; padding: 5px 12px; border-radius: 20px;
+  border: 1px solid var(--bd2); background: var(--bg);
+  color: var(--text2); cursor: pointer; font-family: var(--font);
+  white-space: nowrap;
+}
+.sb.on { background: var(--blue-bg); color: var(--blue-t); border-color: var(--blue-m); }
+
+.cat-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+.cb {
+  font-size: 11px; padding: 4px 10px; border-radius: 14px;
+  border: 1px solid var(--bd2); background: var(--bg);
+  color: var(--text2); cursor: pointer; font-family: var(--font);
+  white-space: nowrap;
+}
+.cb.on { background: var(--blue-bg); color: var(--blue-t); border-color: var(--blue-m); }
+
+.count { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+
+.topic-list { display: flex; flex-direction: column; gap: 8px; }
+
+.tr {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 6px 10px;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: var(--rl);
+  cursor: pointer;
+}
+.tr:hover { border-color: var(--bd2); }
+.tr.sel { border-color: var(--blue-m); border-width: 1.5px; }
+
+.rn {
+  grid-row: 1 / 3;
+  grid-column: 1;
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600;
+}
+.r1 { background: var(--blue-bg); color: var(--blue-t); }
+.r2 { background: var(--green-bg); color: var(--green-t); }
+.r3 { background: var(--amber-bg); color: var(--amber-t); }
+.ro { background: var(--bg2); color: var(--text2); }
+
+.tm {
+  grid-row: 1;
+  grid-column: 2;
+  min-width: 0;
+}
+.tt { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.45; }
+.ts {
+  font-size: 11px; color: var(--text3);
+  margin-top: 4px;
+  display: flex; gap: 6px; align-items: center;
+  flex-wrap: wrap;
+}
+.date { font-size: 10px; color: var(--text3); background: var(--bg2); padding: 1px 6px; border-radius: 4px; }
+
+.sc {
+  grid-row: 1;
+  grid-column: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+.sv { font-size: 20px; font-weight: 600; line-height: 1; }
+.sl { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+.meta-row {
+  grid-row: 2;
+  grid-column: 2 / 4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.mini-bars {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.mini-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1 1 120px;
+  min-width: 110px;
+}
+.ml { font-size: 10px; color: var(--text3); white-space: nowrap; }
+.mt {
+  flex: 1;
+  height: 3px;
+  background: var(--bg2);
+  border-radius: 2px;
+  overflow: hidden;
+  min-width: 40px;
+}
+.mi { height: 100%; background: var(--blue-m); border-radius: 2px; }
+.mn { height: 100%; background: var(--green-m); border-radius: 2px; }
+.mv { font-size: 10px; color: var(--text2); font-weight: 600; min-width: 20px; text-align: right; }
+
+.ct {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.cw { background: var(--purple-bg); color: var(--purple-t); }
+.ce { background: var(--teal-bg); color: var(--teal-t); }
+.cp { background: var(--blue-bg); color: var(--blue-t); }
+.ck { background: var(--amber-bg); color: var(--amber-t); }
+.cr { background: var(--pink-bg); color: var(--pink-t); }
+
+.nb {
+  font-size: 10px; padding: 1px 6px; border-radius: 8px;
+  background: var(--red-bg); color: var(--red-t);
+  font-weight: 600; white-space: nowrap; flex-shrink: 0;
+}
+
+.db {
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: var(--rl);
+  padding: 1.25rem;
+  margin: .5rem 0;
+}
+.dtr { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+.dso { font-size: 11px; color: var(--text3); }
+.dti { font-size: 15px; font-weight: 600; line-height: 1.5; margin-bottom: 14px; }
+
+.dsc {
+  display: flex;
+  margin-bottom: 16px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.dc {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 8px;
+  text-align: center;
+  background: var(--bg2);
+  border-right: 1px solid var(--bd);
+}
+.dc:last-child { border-right: none; }
+.dv { font-size: 20px; font-weight: 700; }
+.dl { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.dw { font-size: 10px; color: var(--text3); margin-top: 5px; line-height: 1.4; word-break: break-word; }
+
+.dsu { font-size: 13px; color: var(--text2); line-height: 1.8; margin-bottom: 16px; }
+
+.sl2 {
+  font-size: 10px; font-weight: 600; color: var(--text3);
+  letter-spacing: .06em; text-transform: uppercase;
+  margin-bottom: 8px; margin-top: 16px;
+}
+.pl { display: flex; flex-direction: column; gap: 7px; }
+.pi { display: flex; gap: 8px; font-size: 13px; color: var(--text2); line-height: 1.6; }
+.pd { width: 5px; height: 5px; border-radius: 50%; background: var(--blue-m); flex-shrink: 0; margin-top: 7px; }
+
+.lg { display: flex; flex-direction: column; gap: 8px; }
+.lc {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--bd); border-radius: var(--r);
+  text-decoration: none; background: var(--bg);
+}
+.lc:hover { border-color: var(--bd2); }
+.li {
+  width: 30px; height: 30px; border-radius: 6px; flex-shrink: 0;
+  background: var(--bg2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--text2);
+}
+.lb { flex: 1; min-width: 0; }
+.ln { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4; }
+.ld { font-size: 11px; color: var(--text3); margin-top: 2px; line-height: 1.5; }
+.lu { font-size: 10px; color: var(--blue-s); margin-top: 3px; word-break: break-all; }
+
+.rc { display: flex; gap: 6px; flex-wrap: wrap; }
+.rch {
+  font-size: 12px; padding: 5px 12px; border-radius: 14px;
+  border: 1px solid var(--bd2); background: var(--bg);
+  color: var(--text2); font-family: var(--font);
+}
+
+.un {
+  margin-top: 3rem; padding: 1rem 1.25rem;
+  background: var(--bg2); border-radius: var(--r);
+  font-size: 12px; color: var(--text3); line-height: 1.7;
+}
+.un strong { color: var(--text2); }
+
+@media (max-width: 600px) {
+  .page { padding: 1rem 0.75rem 3rem; }
+  header h1 { font-size: 18px; }
+  .tr { padding: 10px 12px; gap: 4px 8px; }
+  .tt { font-size: 13px; }
+  .sv { font-size: 18px; }
+  .mini-bars { gap: 6px 10px; }
+  .mini-bar { flex: 1 1 100%; min-width: 0; }
+  .db { padding: 1rem; }
+  .dti { font-size: 14px; }
+  .dv { font-size: 18px; }
+  .dc { padding: 8px 6px; }
+}
 </style>
 </head>
 <body>
@@ -116,7 +288,8 @@ header small{font-size:11px;color:var(--text3);}
     <p>時事ドットコム国際欄ベース ／ 4月14日〜21日の1週間分</p>
     <small>最終更新：2026年4月21日（火）　15件</small>
     <div class="summary-box">
-      <strong>今週のハイライト</strong>　ホルムズ海峡を巡る米イラン緊張が最大のテーマ。停戦期限が22日夜に迫る中でバンス副大統領がイスラマバード入り、原油は再び90ドル超に。欧州ではハンガリー・オルバン政権が16年ぶりに崩壊、ブルガリアでも親ロ野党が政権交代へ。米国ではクックCEO退任・FBI長官訴訟など動きが相次いだ。
+      <strong>今週のハイライト</strong><br>
+      ホルムズ海峡を巡る米イラン緊張が最大のテーマ。停戦期限が22日夜に迫る中でバンス副大統領がイスラマバード入り、原油は再び90ドル超に。欧州ではハンガリー・オルバン政権が16年ぶりに崩壊、ブルガリアでも親ロ野党が政権交代へ。米国ではクックCEO退任・FBI長官訴訟など動きが相次いだ。
     </div>
   </header>
 
@@ -372,7 +545,7 @@ function toggle(id){selId=selId===id?null:id;render();}
 
 function render(){
   const sorted=getSorted();
-  document.getElementById('count').textContent=`${sorted.length}件を表示中`;
+  document.getElementById('count').textContent=sorted.length+'件を表示中';
   let html='';
   sorted.forEach((a,i)=>{
     const rc=i===0?'r1':i===1?'r2':i===2?'r3':'ro';
@@ -382,36 +555,34 @@ function render(){
     const lbl=catLabel[a.cat]||a.cat;
     const sd=sortMode==='date'?a.date:score(a);
     const sdl=sortMode==='date'?'日付':scoreLbl();
-    html+=`<div class="tr ${sel}" onclick="toggle(${a.id})">
-      <div class="rn ${rc}">${i+1}</div>
-      <div class="tm"><div class="tt">${a.title}</div><div class="ts"><span class="date">${a.date}</span><span>${a.src}</span></div></div>
-      <div class="mb">
-        <div class="mr"><span class="ml">重要</span><div class="mt"><div class="mi" style="width:${a.importance}%"></div></div></div>
-        <div class="mr"><span class="ml">関心</span><div class="mt"><div class="mn" style="width:${a.interest}%"></div></div></div>
-      </div>
-      <div class="sc"><div class="sv">${sd}</div><div class="sl">${sdl}</div></div>
-      <span class="ct ${cl}">${lbl}</span>
-      ${nb}
-      <span class="ch">›</span>
-    </div>`;
+    html+='<div class="tr '+sel+'" onclick="toggle('+a.id+')">'
+      +'<div class="rn '+rc+'">'+(i+1)+'</div>'
+      +'<div class="tm"><div class="tt">'+a.title+'</div>'
+      +'<div class="ts"><span class="date">'+a.date+'</span><span>'+a.src+'</span><span class="ct '+cl+'">'+lbl+'</span>'+nb+'</div></div>'
+      +'<div class="sc"><div class="sv">'+sd+'</div><div class="sl">'+sdl+'</div></div>'
+      +'<div class="meta-row"><div class="mini-bars">'
+      +'<div class="mini-bar"><span class="ml">重要度</span><div class="mt"><div class="mi" style="width:'+a.importance+'%"></div></div><span class="mv">'+a.importance+'</span></div>'
+      +'<div class="mini-bar"><span class="ml">関心度</span><div class="mt"><div class="mn" style="width:'+a.interest+'%"></div></div><span class="mv">'+a.interest+'</span></div>'
+      +'</div></div>'
+      +'</div>';
     if(selId===a.id){
       const total=Math.round((a.importance+a.interest)/2);
-      html+=`<div class="db">
-        <div class="dtr"><span class="ct ${cl}">${lbl}</span>${a.isNew?'<span class="nb">NEW</span>':''}<span class="date">${a.date}</span><span class="dso">${a.src}</span></div>
-        <div class="dti">${a.title}</div>
-        <div class="dsc">
-          <div class="dc"><div class="dv" style="color:#185FA5">${a.importance}</div><div class="dl">重要度</div><div class="dw">${a.ir}</div></div>
-          <div class="dc"><div class="dv" style="color:#0F6E56">${a.interest}</div><div class="dl">関心度</div><div class="dw">${a.nr}</div></div>
-          <div class="dc"><div class="dv">${total}</div><div class="dl">総合スコア</div></div>
-        </div>
-        <div class="dsu">${a.summary}</div>
-        <div class="sl2">主なポイント</div>
-        <div class="pl">${a.points.map(p=>`<div class="pi"><div class="pd"></div><span>${p}</span></div>`).join('')}</div>
-        <div class="sl2">関連記事・参考リンク</div>
-        <div class="lg">${a.links.map(l=>`<a class="lc" href="${l.u}" target="_blank" rel="noopener"><div class="li">${l.m.substring(0,2).toUpperCase()}</div><div class="lb"><div class="ln">${l.n}</div><div class="ld">${l.d}</div><div class="lu">${l.u}</div></div></a>`).join('')}</div>
-        <div class="sl2">関連キーワード</div>
-        <div class="rc">${a.related.map(r=>`<span class="rch">${r}</span>`).join('')}</div>
-      </div>`;
+      html+='<div class="db">'
+        +'<div class="dtr"><span class="ct '+cl+'">'+lbl+'</span>'+(a.isNew?'<span class="nb">NEW</span>':'')+'<span class="date">'+a.date+'</span><span class="dso">'+a.src+'</span></div>'
+        +'<div class="dti">'+a.title+'</div>'
+        +'<div class="dsc">'
+        +'<div class="dc"><div class="dv" style="color:#185FA5">'+a.importance+'</div><div class="dl">重要度</div><div class="dw">'+a.ir+'</div></div>'
+        +'<div class="dc"><div class="dv" style="color:#0F6E56">'+a.interest+'</div><div class="dl">関心度</div><div class="dw">'+a.nr+'</div></div>'
+        +'<div class="dc"><div class="dv">'+total+'</div><div class="dl">総合</div></div>'
+        +'</div>'
+        +'<div class="dsu">'+a.summary+'</div>'
+        +'<div class="sl2">主なポイント</div>'
+        +'<div class="pl">'+a.points.map(p=>'<div class="pi"><div class="pd"></div><span>'+p+'</span></div>').join('')+'</div>'
+        +'<div class="sl2">関連記事・参考リンク</div>'
+        +'<div class="lg">'+a.links.map(l=>'<a class="lc" href="'+l.u+'" target="_blank" rel="noopener"><div class="li">'+l.m.substring(0,2).toUpperCase()+'</div><div class="lb"><div class="ln">'+l.n+'</div><div class="ld">'+l.d+'</div><div class="lu">'+l.u+'</div></div></a>').join('')+'</div>'
+        +'<div class="sl2">関連キーワード</div>'
+        +'<div class="rc">'+a.related.map(r=>'<span class="rch">'+r+'</span>').join('')+'</div>'
+        +'</div>';
     }
   });
   document.getElementById('list').innerHTML=html||'<div style="padding:2rem;text-align:center;color:var(--text3);font-size:14px;">このカテゴリの記事はありません</div>';
